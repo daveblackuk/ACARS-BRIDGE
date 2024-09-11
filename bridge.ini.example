@@ -1,0 +1,15 @@
+[Settings]
+
+# from www.hoppie.nl
+hoppie_logon = 
+
+# API Key from the SI pilot portal
+sai_logon = 
+
+#ID NOT Username :)
+
+simbrief_id = your simbrief simbrief_id
+
+# Do not change 
+sai_url = mep.sayintentions.ai
+hoppie_url = www.hoppie.nl
