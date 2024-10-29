@@ -29,4 +29,6 @@ The bridge will then listen on both networks and forward messages between them.
 A configuration file (bridge.ini) is created in the same directory as the programme; this contains the configuration information.
 
 
+### Buy me a Coffee
 
+<a href="https://www.buymeacoffee.com/deltabravozulu" target="_blank"><img width="100" alt="bmc-logo-yellow" src="https://user-images.githubusercontent.com/4178804/178282683-2d1195e1-7582-4ab5-aee3-9b57305e795c.png"></a>
