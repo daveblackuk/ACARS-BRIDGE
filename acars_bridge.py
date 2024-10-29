@@ -6,14 +6,15 @@ import time
 import configparser
 from hash_userid import *
 import threading
-
+from colors import *
 
 config = configparser.ConfigParser()
 # Read the INI file
-config.read('bridge.ini')
+
 
 # Configuration attributes
 try: 
+    config.read('bridge.ini')
     hoppie_logon = config.get('Settings', 'hoppie_logon',fallback="")
     hoppie_url = config.get('Settings', 'hoppie_url', fallback='www.hoppie.nl')
     sai_logon = config.get('Settings', 'sayintentions_api_key',fallback="")
@@ -35,7 +36,7 @@ callsigns_dict = {}
 # Set up logging
 logging.basicConfig(
     #filename='acars_log.log',
-    level=logging.ERROR,
+    level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
@@ -131,7 +132,7 @@ def poll_backend(source_url, source_logon, source_callsign, target_url, target_l
 
 def poll_hoppie():    
     try:
-         logging.info(f"Polling Hoppie ACARS {hoppie_url} for ATSU: {atsu_callsign}")
+         logging.info(f"Polling Hoppie ACARS {hoppie_url} for ATSU:  {atsu_string}")
 
          while True:
              poll_backend(
@@ -150,7 +151,7 @@ def poll_hoppie():
 
 def poll_si():    
     try:
-        logging.info(f"Polling SI ACARS {sai_url} for Callsign: {sb_callsign}")
+        logging.info(f"Polling SI ACARS {sai_url} for Callsign: {callsign_string}")
         while True:
             poll_backend(
                     sai_url,
@@ -170,10 +171,15 @@ def poll_si():
 
 if __name__ == '__main__':
     try:
-        logging.info(f"ATSU Callsign: {generate_random_4_letter_string(sai_logon)}")
+        atsu_string = f"{bold}{red}{atsu_callsign}{reset}"
+        print(f"\n{bold}Use the following ATSU Callsign for all PDC & CPDLC requests: {atsu_string}\n")  
+ 
+        logging.info(f"ATSU Callsign: { atsu_string}")
         sb_plan = get_simbrief_plan(simbrief_id)
         sb_callsign = sb_plan["atc"]["callsign"]
-        logging.info(f"Aircraft Callsign: {sb_callsign} ")
+        callsign_string = f"{bold}{green}{sb_callsign}{reset}"
+   
+        logging.info(f"Aircraft Callsign: {callsign_string} ")
         poll_hoppie_thread = threading.Thread(target=poll_hoppie)  
         poll_si_thread = threading.Thread(target=poll_si)   
 
