@@ -1,6 +1,6 @@
 # **ACARS Bridge**
 
-The ACARS bridge enaables aircraft to communicate with Sayintentions.AI's ACARS network even though there is no direct method of communications.
+The ACARS bridge enables aircraft to communicate with Sayintentions.AI's ACARS network even though there is no direct method of communications.
 
 This is achieved by bridging between Hoppie's ACARS network and Sayintentions.AI's ACARS network; a unique 4 character ATSU Callsign is created for the client aircraft to use when sending PDC, Telex and CPDLC messages to the Sayintentions.AI's ACARS network via Hoppie's network.
 
@@ -29,4 +29,4 @@ The bridge will then listen on both networks and forward messages between them.
 A configuration file (bridge.ini) is created in the same directory as the programme; this contains the configuration information.
 
 
-Buy me a Coffee
+
