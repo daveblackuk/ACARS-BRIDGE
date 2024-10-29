@@ -4,8 +4,10 @@ import string
 
 def generate_random_4_letter_string(base_string):
     # Ensure the base_string is exactly 12 characters
+    base_string = base_string.strip()
     if len(base_string) != 12:
-        raise ValueError("Base string must be exactly 12 characters long")
+        raise ValueError(f"Base string must be exactly 12 characters long {len(base_string)}")
+
 
     # Hash the base string using SHA-256
     hash_object = hashlib.sha256(base_string.encode())

@@ -8,41 +8,66 @@ from hash_userid import *
 import threading
 from colors import *
 
+
+hoppie_logon = ""
+hoppie_url = ""
+sai_logon = ""
+sai_url = ""
+simbrief_id = ""
+
 config = configparser.ConfigParser()
 # Read the INI file
 
 
 # Configuration attributes
-try: 
+def get_config():
+ global hoppie_logon, hoppie_url, sai_logon, sai_url, simbrief_id
+ try: 
+    if not config.read('bridge.ini'):
+        config.add_section('Settings')
+        with open('bridge.ini', 'w') as configfile:
+            config.write(configfile)
     config.read('bridge.ini')
+
     hoppie_logon = config.get('Settings', 'hoppie_logon',fallback="")
     hoppie_url = config.get('Settings', 'hoppie_url', fallback='www.hoppie.nl')
     sai_logon = config.get('Settings', 'sayintentions_api_key',fallback="")
     sai_url = config.get('Settings', 'sayintentions_url', fallback='acars.sayintentions.ai')
     simbrief_id = config.get('Settings', 'simbrief_id',fallback="")
-except:
+ except:
     logging.error("Error reading configuration")
     exit()
 
 
 
-if not hoppie_logon or not sai_logon or not simbrief_id:
-    logging.error("Missing configuration")
-    exit()
 
-atsu_callsign = generate_random_4_letter_string(sai_logon)
-callsigns_dict = {}
+
 
 # Set up logging
 logging.basicConfig(
     #filename='acars_log.log',
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%H:%M:%S'
 )
 
+def set_configuration():
+    # Get user input for configuration
+    hoppie_logon_input = input(f"Enter Hoppie Logon [{hoppie_logon}]: ").strip() or hoppie_logon
+    simbrief_id_input = input(f"Enter SimBrief ID [{simbrief_id}]: ").strip() or simbrief_id
+    sai_logon_input = input(f"Enter SayIntentions API Key [{sai_logon}]: ").strip() or sai_logon
 
 
 
+    # Save the configuration to the INI file
+    config.set('Settings', 'hoppie_logon', hoppie_logon_input)
+    config.set('Settings', 'simbrief_id', simbrief_id_input)
+    config.set('Settings', 'sayintentions_api_key', sai_logon_input)
+
+    with open('bridge.ini', 'w') as configfile:
+        config.write(configfile)
+
+  
 def get_simbrief_plan(simbrief_id):
     logging.info(f"Fetch plan: {simbrief_id}")
     url = f"https://www.simbrief.com/api/xml.fetcher.php?json=1&userid={simbrief_id}" 
@@ -143,9 +168,9 @@ def poll_hoppie():
                  sai_logon
              )
 
-             sleep_time = int(random.uniform(60, 75))
-             #logging.info(f"Hoppie Poll Sleeping for {sleep_time:.2f} seconds")
-             time.sleep(sleep_time)
+             hoppie_sleep_time = int(random.uniform(22, 30))
+             #logging.info(f"Hoppie Poll Sleeping for {hoppie_sleep_time:.2f} seconds")
+             time.sleep(hoppie_sleep_time)
     except Exception as e:
         logging.error(f"Error polling Hoppie: {e}")
 
@@ -162,15 +187,26 @@ def poll_si():
             )
 
 
-            sleep_time = int(random.uniform(10, 15))
-            #logging.info(f"SI Poll Sleeping for {sleep_time:.2f} seconds")
-            time.sleep(sleep_time)
+            si_sleep_time = int(random.uniform(5, 20))
+            #logging.info(f"SI Poll Sleeping for {si_sleep_time:.2f} seconds")
+            time.sleep(si_sleep_time)
     except Exception as e:
         logging.error(f"Error polling SI: {e}")
 
 
 if __name__ == '__main__':
     try:
+        get_config()
+
+        while not hoppie_logon or not sai_logon or not simbrief_id:
+            set_configuration()
+            get_config()
+
+
+
+        atsu_callsign = generate_random_4_letter_string(sai_logon)
+        callsigns_dict = {}
+
         atsu_string = f"{bold}{red}{atsu_callsign}{reset}"
         print(f"\n{bold}Use the following ATSU Callsign for all PDC & CPDLC requests: {atsu_string}\n")  
  
