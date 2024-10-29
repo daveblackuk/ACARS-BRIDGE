@@ -75,11 +75,11 @@ def get_simbrief_plan(simbrief_id):
         response = requests.get(url)
         response.raise_for_status()  # Raise an exception for HTTP errors
         json_data = response.json()  # Corrected method call
-        logging.info(f"Received SB Plan:")
+        logging.info(f'Received SB Plan: {json_data["atc"]["callsign"]}')
         return json_data 
     except requests.exceptions.RequestException as e:
         logging.error(f"Error polling URL: {e}")
-        return False
+        return {}
 
 
 

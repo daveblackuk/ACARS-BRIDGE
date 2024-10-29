@@ -1,3 +1,9 @@
 _bridge.ini
 my_bridge.ini
 bridge.ini
+/build/
+/dist/
+bridge.spec
+__pycache__/hash_userid.cpython-311.pyc
+__pycache__/colors.cpython-311.pyc
+bridge.spec

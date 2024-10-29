@@ -1,0 +1,1 @@
+python -m PyInstaller --name Bridge bridge.py  --onefile      --icon=bridge.ico
