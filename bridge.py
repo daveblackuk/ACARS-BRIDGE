@@ -7,8 +7,9 @@ import configparser
 from hash_userid import *
 import threading
 from colors import *
+import os
 
-
+version = "0.2024.10.1"
 hoppie_logon = ""
 hoppie_url = ""
 sai_logon = ""
@@ -20,23 +21,30 @@ config = configparser.ConfigParser()
 
 
 # Configuration attributes
+
 def get_config():
- global hoppie_logon, hoppie_url, sai_logon, sai_url, simbrief_id
- try: 
-    if not config.read('bridge.ini'):
+
+    global hoppie_logon, hoppie_url, sai_logon, sai_url, simbrief_id   
+    if not os.path.exists('bridge.ini'):
         config.add_section('Settings')
         with open('bridge.ini', 'w') as configfile:
             config.write(configfile)
-    config.read('bridge.ini')
+    else:
+        config.read('bridge.ini')
+        hoppie_logon = config.get('Settings', 'hoppie_logon',fallback="")
+        hoppie_url = config.get('Settings', 'hoppie_url', fallback='www.hoppie.nl')
+        sai_logon = config.get('Settings', 'sayintentions_api_key',fallback="")
+        sai_url = config.get('Settings', 'sayintentions_url', fallback='acars.sayintentions.ai')
+        simbrief_id = config.get('Settings', 'simbrief_id',fallback="")
+        return True
 
-    hoppie_logon = config.get('Settings', 'hoppie_logon',fallback="")
-    hoppie_url = config.get('Settings', 'hoppie_url', fallback='www.hoppie.nl')
-    sai_logon = config.get('Settings', 'sayintentions_api_key',fallback="")
-    sai_url = config.get('Settings', 'sayintentions_url', fallback='acars.sayintentions.ai')
-    simbrief_id = config.get('Settings', 'simbrief_id',fallback="")
- except:
-    logging.error("Error reading configuration")
-    exit()
+
+
+    
+
+
+
+
 
 
 
@@ -52,6 +60,8 @@ logging.basicConfig(
 )
 
 def set_configuration():
+
+    print(f"Please enter the following configuration settings:\n")
     # Get user input for configuration
     hoppie_logon_input = input(f"Enter Hoppie Logon [{hoppie_logon}]: ").strip() or hoppie_logon
     simbrief_id_input = input(f"Enter SimBrief ID [{simbrief_id}]: ").strip() or simbrief_id
@@ -63,9 +73,10 @@ def set_configuration():
     config.set('Settings', 'hoppie_logon', hoppie_logon_input)
     config.set('Settings', 'simbrief_id', simbrief_id_input)
     config.set('Settings', 'sayintentions_api_key', sai_logon_input)
-
     with open('bridge.ini', 'w') as configfile:
-        config.write(configfile)
+            config.write(configfile)
+
+
 
   
 def get_simbrief_plan(simbrief_id):
@@ -78,7 +89,7 @@ def get_simbrief_plan(simbrief_id):
         logging.info(f'Received SB Plan: {json_data["atc"]["callsign"]}')
         return json_data 
     except requests.exceptions.RequestException as e:
-        logging.error(f"Error polling URL: {e}")
+        logging.error(f"Error getting SB Plan {e}")
         return {}
 
 
@@ -196,14 +207,18 @@ def poll_si():
 
 if __name__ == '__main__':
     try:
+        clear_screen()
+        banner =(f"{bold}Hoppie/SayIntentions.AI ACARS Bridge {reset}v{version}{reset}\n")
+        print(banner)
         get_config()
-
         while not hoppie_logon or not sai_logon or not simbrief_id:
-            set_configuration()
-            get_config()
+           set_configuration()
+           get_config()
 
 
 
+        clear_screen()
+        print(banner)
         atsu_callsign = generate_random_4_letter_string(sai_logon)
         callsigns_dict = {}
 
@@ -222,8 +237,7 @@ if __name__ == '__main__':
         poll_hoppie_thread.start()
         poll_si_thread.start()
     except Exception as e:
-        logging.error(f"Error starting: {e}")
+        logging.error(f"Error: {e}")
+        exit(1)
 
-    
    
-

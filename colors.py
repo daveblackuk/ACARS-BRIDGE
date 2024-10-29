@@ -21,8 +21,12 @@ white = set_color("white")
 bold = set_color("bold")
 reset = set_color("reset_to_normal")
 
+def clear_screen():
+    print(Fore.RESET + Style.RESET_ALL + '\033[2J\033[H')
+
 if __name__ == "__main__":
 # Example usage:
     print(set_color("red") + "This is red text" + set_color("reset_to_normal"))
     print(set_color("green") + "This is green text" + set_color("reset_to_normal"))
     print(set_color("bold") + "This is bold text" + set_color("reset_to_normal"))
+
