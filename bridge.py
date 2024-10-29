@@ -18,7 +18,7 @@ import configparser
 from hash_userid import *
 import threading
 from colors import *
-import os
+import os, sys
 
 version = "0.2024.10.1"
 hoppie_logon = ""
@@ -59,7 +59,7 @@ def set_configuration():
 
     if not hoppie_logon_input or not simbrief_id_input or not sai_logon_input:
         logging.error(f" {red} Configuration values cannot be empty. Exiting.")
-        exit(1)
+        sys.exit(1)
 
     # Save the configuration to the INI file
     config.set('Settings', 'hoppie_logon', hoppie_logon_input)
@@ -221,6 +221,6 @@ if __name__ == '__main__':
         poll_si_thread.start()
     except Exception as e:
         logging.error(f"Error: {e}")
-        exit(1)
+        sys.exit(1)
 
    
