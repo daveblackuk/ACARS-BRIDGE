@@ -13,25 +13,32 @@ config = configparser.ConfigParser()
 config.read('bridge.ini')
 
 # Configuration attributes
+try: 
+    hoppie_logon = config.get('Settings', 'hoppie_logon',fallback="")
+    hoppie_url = config.get('Settings', 'hoppie_url', fallback='www.hoppie.nl')
+    sai_logon = config.get('Settings', 'sayintentions_api_key',fallback="")
+    sai_url = config.get('Settings', 'sayintentions_url', fallback='acars.sayintentions.ai')
+    simbrief_id = config.get('Settings', 'simbrief_id',fallback="")
+except:
+    logging.error("Error reading configuration")
+    exit()
 
-hoppie_logon = config.get('Settings', 'hoppie_logon')
-hoppie_url = config.get('Settings', 'hoppie_url')
-sai_logon = config.get('Settings', 'sai_logon')
-sai_url = config.get('Settings', 'sai_url')
-simbrief_id = config.get('Settings', 'simbrief_id')
+
+
+if not hoppie_logon or not sai_logon or not simbrief_id:
+    logging.error("Missing configuration")
+    exit()
 
 atsu_callsign = generate_random_4_letter_string(sai_logon)
-
-
-
 callsigns_dict = {}
 
 # Set up logging
 logging.basicConfig(
     #filename='acars_log.log',
-    level=logging.INFO,
+    level=logging.ERROR,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
+
 
 
 
@@ -66,39 +73,48 @@ def poll_backend(source_url, source_logon, source_callsign, target_url, target_l
     except requests.exceptions.RequestException as e:
         logging.error(f"Error polling URL: {e}")
         return
-    
-    # Step 2: Parse the response using regex
-    pattern = r"\{(?P<from>[A-Z0-9]+) (?P<type>\w+) \{(?P<packet>.*?)\}\}"
-    matches = re.finditer(pattern, response_text)
-    
-    # List to store parsed messages
-    messages = []
+    try:
+        # Step 2: Parse the response using regex
+        pattern = r"\{(?P<from>[A-Z0-9]+) (?P<type>\w+) \{(?P<packet>.*?)\}\}"
+        matches = re.finditer(pattern, response_text)
 
-    # Parse each match and store it in the list
-    for match in matches:
-        message = {
-            "from": match.group("from"),
-            "type": match.group("type"),
-            "packet": match.group("packet").strip()
-        }
-        
-        logging.info(f'Polling {source_url} From: {match.group("from")} To: {source_callsign} Message: {match.group("packet")} ')
+        # List to store parsed messages
+        messages = []
 
-        messages.append(message)
-        #logging.info(f"Parsed message: {message}")
-    #if len(messages):
-    #    logging.info(f"Number of messages for {source_callsign}: {len(messages)} on {source_url}")
+        # Parse each match and store it in the list
+        for match in matches:
+            message = {
+                "from": match.group("from"),
+                "type": match.group("type"),
+                "packet": match.group("packet").strip()
+            }
 
+            logging.info(f'Polling {source_url} From: {match.group("from")} To: {source_callsign} Message: {match.group("packet")} ')
+
+            messages.append(message)
+            #logging.info(f"Parsed message: {message}")
+        #if len(messages):
+        #    logging.info(f"Number of messages for {source_callsign}: {len(messages)} on {source_url}")
+    except Exception as e:
+        logging.error(f"Error parsing response: {e}")
+       
+
+  
     # Step 3: Create and send the GET request for each message
     for message in messages:
-        get_request_url = (
-            f"http://{target_url}/acars/system/connect.html?"
-            f"logon={target_logon}&"
-            f"from={message['from']}&"
-            f"to={source_callsign}&"
-            f"type={message['type']}&"
-            f"packet={message['packet']}"
+        try:
+            get_request_url = (
+                f"http://{target_url}/acars/system/connect.html?"
+                f"logon={target_logon}&"
+                f"from={message['from']}&"
+                f"to={source_callsign}&"
+                f"type={message['type']}&"
+                f"packet={message['packet']}"
         )
+        except Exception as e:
+            logging.error(f"Error creating GET request: {e}")
+            continue
+
     
         try:
             sai_response = requests.get(get_request_url)
@@ -109,52 +125,63 @@ def poll_backend(source_url, source_logon, source_callsign, target_url, target_l
             logging.error(f"Error sending GET request: {e}")
             continue
 
+
         return len(messages)
 
 
 def poll_hoppie():    
+    try:
+         logging.info(f"Polling Hoppie ACARS {hoppie_url} for ATSU: {atsu_callsign}")
 
-    logging.info(f"Polling Hoppie ACARS {hoppie_url} for ATSU: {atsu_callsign}")
-    
-    while True:
-        poll_backend(
-            hoppie_url,
-            hoppie_logon,
-            atsu_callsign,
-            sai_url,
-            sai_logon
-        )
-        
-        sleep_time = int(random.uniform(60, 75))
-        #logging.info(f"Hoppie Poll Sleeping for {sleep_time:.2f} seconds")
-        time.sleep(sleep_time)
+         while True:
+             poll_backend(
+                 hoppie_url,
+                 hoppie_logon,
+                 atsu_callsign,
+                 sai_url,
+                 sai_logon
+             )
+
+             sleep_time = int(random.uniform(60, 75))
+             #logging.info(f"Hoppie Poll Sleeping for {sleep_time:.2f} seconds")
+             time.sleep(sleep_time)
+    except Exception as e:
+        logging.error(f"Error polling Hoppie: {e}")
 
 def poll_si():    
-    logging.info(f"Polling SI ACARS {sai_url} for Callsign: {sb_callsign}")
-    while True:
-        poll_backend(
-                sai_url,
-                sai_logon,
-                sb_callsign,
-                hoppie_url,
-                hoppie_logon,
-        )
+    try:
+        logging.info(f"Polling SI ACARS {sai_url} for Callsign: {sb_callsign}")
+        while True:
+            poll_backend(
+                    sai_url,
+                    sai_logon,
+                    sb_callsign,
+                    hoppie_url,
+                    hoppie_logon,
+            )
 
-        
-        sleep_time = int(random.uniform(10, 15))
-        #logging.info(f"SI Poll Sleeping for {sleep_time:.2f} seconds")
-        time.sleep(sleep_time)
+
+            sleep_time = int(random.uniform(10, 15))
+            #logging.info(f"SI Poll Sleeping for {sleep_time:.2f} seconds")
+            time.sleep(sleep_time)
+    except Exception as e:
+        logging.error(f"Error polling SI: {e}")
+
 
 if __name__ == '__main__':
-    logging.info(f"ATSU Callsign: {generate_random_4_letter_string(sai_logon)}")
-    sb_plan = get_simbrief_plan(simbrief_id)
-    sb_callsign = sb_plan["atc"]["callsign"]
-    logging.info(f"Aircraft Callsign: {sb_callsign} ")
-    poll_hoppie_thread = threading.Thread(target=poll_hoppie)  
-    poll_si_thread = threading.Thread(target=poll_si)   
+    try:
+        logging.info(f"ATSU Callsign: {generate_random_4_letter_string(sai_logon)}")
+        sb_plan = get_simbrief_plan(simbrief_id)
+        sb_callsign = sb_plan["atc"]["callsign"]
+        logging.info(f"Aircraft Callsign: {sb_callsign} ")
+        poll_hoppie_thread = threading.Thread(target=poll_hoppie)  
+        poll_si_thread = threading.Thread(target=poll_si)   
 
-    poll_hoppie_thread.start()
-    poll_si_thread.start()
+        poll_hoppie_thread.start()
+        poll_si_thread.start()
+    except Exception as e:
+        logging.error(f"Error starting: {e}")
+
     
    
 
