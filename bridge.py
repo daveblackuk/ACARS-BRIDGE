@@ -1,6 +1,16 @@
 import requests
 import re
 import logging
+
+# Set up logging
+logging.basicConfig(
+    #filename='acars_log.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%H:%M:%S'
+)
+
+
 import random
 import time
 import configparser
@@ -17,13 +27,10 @@ sai_url = ""
 simbrief_id = ""
 
 config = configparser.ConfigParser()
-# Read the INI file
 
-
-# Configuration attributes
 
 def get_config():
-
+  try:
     global hoppie_logon, hoppie_url, sai_logon, sai_url, simbrief_id   
     if not os.path.exists('bridge.ini'):
         config.add_section('Settings')
@@ -37,27 +44,9 @@ def get_config():
         sai_url = config.get('Settings', 'sayintentions_url', fallback='acars.sayintentions.ai')
         simbrief_id = config.get('Settings', 'simbrief_id',fallback="")
         return True
+  except Exception as e:
+    logging.error(f"Error reading configuration: {e}")
 
-
-
-    
-
-
-
-
-
-
-
-
-
-
-# Set up logging
-logging.basicConfig(
-    #filename='acars_log.log',
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%H:%M:%S'
-)
 
 def set_configuration():
 
@@ -67,7 +56,9 @@ def set_configuration():
     simbrief_id_input = input(f"Enter SimBrief ID [{simbrief_id}]: ").strip() or simbrief_id
     sai_logon_input = input(f"Enter SayIntentions API Key [{sai_logon}]: ").strip() or sai_logon
 
-
+    if not hoppie_logon_input or not simbrief_id_input or not sai_logon_input:
+        logging.error(f" {red} Configuration values cannot be empty. Exiting.")
+        exit(1)
 
     # Save the configuration to the INI file
     config.set('Settings', 'hoppie_logon', hoppie_logon_input)
@@ -86,15 +77,11 @@ def get_simbrief_plan(simbrief_id):
         response = requests.get(url)
         response.raise_for_status()  # Raise an exception for HTTP errors
         json_data = response.json()  # Corrected method call
-        logging.info(f'Received SB Plan: {json_data["atc"]["callsign"]}')
+        logging.info(f'Received SB Callsign: {json_data["atc"]["callsign"]}')
         return json_data 
     except requests.exceptions.RequestException as e:
         logging.error(f"Error getting SB Plan {e}")
         return {}
-
-
-
-
 
 
 def poll_backend(source_url, source_logon, source_callsign, target_url, target_logon):
@@ -106,7 +93,6 @@ def poll_backend(source_url, source_logon, source_callsign, target_url, target_l
         response = requests.get(poll_url)
         response.raise_for_status()  # Raise an exception for HTTP errors
         response_text = response.text
-        #logging.info(f"Received response: {response_text}")
     except requests.exceptions.RequestException as e:
         logging.error(f"Error polling URL: {e}")
         return
@@ -129,9 +115,6 @@ def poll_backend(source_url, source_logon, source_callsign, target_url, target_l
             logging.info(f'Polling {source_url} From: {match.group("from")} To: {source_callsign} Message: {match.group("packet")} ')
 
             messages.append(message)
-            #logging.info(f"Parsed message: {message}")
-        #if len(messages):
-        #    logging.info(f"Number of messages for {source_callsign}: {len(messages)} on {source_url}")
     except Exception as e:
         logging.error(f"Error parsing response: {e}")
        
@@ -151,18 +134,13 @@ def poll_backend(source_url, source_logon, source_callsign, target_url, target_l
         except Exception as e:
             logging.error(f"Error creating GET request: {e}")
             continue
-
-    
+  
         try:
             sai_response = requests.get(get_request_url)
             sai_response.raise_for_status()  # Raise an exception for HTTP errors
-            #logging.info(f"Sent GET request to: {get_request_url}")
-            #logging.info(f"Response: {sai_response.status_code} - {sai_response.text}")
         except requests.exceptions.RequestException as e:
             logging.error(f"Error sending GET request: {e}")
             continue
-
-
         return len(messages)
 
 
@@ -180,7 +158,6 @@ def poll_hoppie():
              )
 
              hoppie_sleep_time = int(random.uniform(22, 30))
-             #logging.info(f"Hoppie Poll Sleeping for {hoppie_sleep_time:.2f} seconds")
              time.sleep(hoppie_sleep_time)
     except Exception as e:
         logging.error(f"Error polling Hoppie: {e}")
@@ -198,8 +175,7 @@ def poll_si():
             )
 
 
-            si_sleep_time = int(random.uniform(5, 20))
-            #logging.info(f"SI Poll Sleeping for {si_sleep_time:.2f} seconds")
+            si_sleep_time = int(random.uniform(5, 15))
             time.sleep(si_sleep_time)
     except Exception as e:
         logging.error(f"Error polling SI: {e}")
@@ -210,27 +186,33 @@ if __name__ == '__main__':
         clear_screen()
         banner =(f"{bold}Hoppie/SayIntentions.AI ACARS Bridge {reset}v{version}{reset}\n")
         print(banner)
+
+
+        # Get the configuration settings
         get_config()
         while not hoppie_logon or not sai_logon or not simbrief_id:
            set_configuration()
            get_config()
 
-
-
         clear_screen()
         print(banner)
-        atsu_callsign = generate_random_4_letter_string(sai_logon)
-        callsigns_dict = {}
 
+
+        # Generate the ATSU Callsign
+        atsu_callsign = generate_random_4_letter_string(sai_logon)
         atsu_string = f"{bold}{red}{atsu_callsign}{reset}"
         print(f"\n{bold}Use the following ATSU Callsign for all PDC & CPDLC requests: {atsu_string}\n")  
  
         logging.info(f"ATSU Callsign: { atsu_string}")
+
+        # Get the SimBrief plan
         sb_plan = get_simbrief_plan(simbrief_id)
         sb_callsign = sb_plan["atc"]["callsign"]
         callsign_string = f"{bold}{green}{sb_callsign}{reset}"
    
         logging.info(f"Aircraft Callsign: {callsign_string} ")
+
+        # Start the polling threads
         poll_hoppie_thread = threading.Thread(target=poll_hoppie)  
         poll_si_thread = threading.Thread(target=poll_si)   
 
