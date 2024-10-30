@@ -1,7 +1,7 @@
 # **ACARS Bridge**
 
 
-Latest release: https://github.com/daveblackuk/ACARS-BRIDGE/releases/tag/ACARS
+Latest release: https://github.com/daveblackuk/ACARS-BRIDGE/releases/tag/ACARS 
 
 The ACARS bridge enables aircraft to communicate with Sayintentions.AI's ACARS network even though there is no direct method of communications.
 
