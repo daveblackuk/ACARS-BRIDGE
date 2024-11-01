@@ -12,3 +12,4 @@ bridge_architecture.pptx
 /bridge_architecture/
 bridge.spec
 .DS_Store
+__pycache__/
