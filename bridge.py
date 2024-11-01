@@ -20,7 +20,7 @@ import threading
 from colors import *
 import os, sys
 
-version = "0.2024.10.1"
+version = "0.2024.11.1"
 hoppie_logon = ""
 hoppie_url = ""
 sai_logon = ""
@@ -94,6 +94,7 @@ def poll_backend(source_url, source_logon, source_callsign, target_url, target_l
         response = requests.get(poll_url)
         response.raise_for_status()  # Raise an exception for HTTP errors
         response_text = response.text
+        response_text = response_text.replace('\r', '').replace('\n', '')
     except requests.exceptions.RequestException as e:
         logging.error(f"Error polling URL: {e}")
         return
