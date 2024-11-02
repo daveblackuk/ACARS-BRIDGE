@@ -68,16 +68,32 @@ A configuration file (bridge.ini) is created in the same directory as the progra
 
 ## Debugging
 
-It is worth remembering that you need to have setup the aircraft to send messages on Hoppie’s ACARS network \- initially check:
+It is worth remembering that you need to have setup the aircraft to send messages on Hoppie’s ACARS network:
 
-[https://www.hoppie.nl/acars/system/log.html](https://www.hoppie.nl/acars/system/log.html)
+There are two important links to check 
+
+### Check Hoppie's ACARS network 
+
+Firstly check Hoppies network for messages from your aircraft
+
+https://www.hoppie.nl/acars/system/callsign.html?network=VATSIM&callsign=[your aircaft callsign]
 
 Search for messages from your callsign to the bridge generated callsign , if they are not reaching here, then the Bridge cannot see them. Check online help tutorials and videos on how to set up the aircraft for Hoppie’s network.
 
+### Check SI's ACARS network 
+
 After that use the SayIntentions.AI ACARS log to search for the messages from your callsign to the bridge generated callsign and vice versa for messages from SayIntentions controllers.
 
-[https://acars.sayintentions.ai/dump](https://acars.sayintentions.ai/dump)
+https://acars.sayintentions.ai/dump?callsign=[your aircaft callsign]
+
+  If you cannot see your aircraft's messages or replies from the server address, then check the bridge is working (maybe restart) and make sure you are sending messages to the controller the bridge has created (not the real world controller)
+
+### Check both ACARS networks for your bridge generated callsign 
+
+You can repeat these with your bridge generated Callsign instead of your aircraft to see if its correctly sending/receiving messages
 
 Check if the messages have been read, if not, check the Bridge is running (possibly restart it).
 
 Check you aren’t running any other ACARS clients that maybe polling either network with your callsign (such as FSM or VSR).
+
+
