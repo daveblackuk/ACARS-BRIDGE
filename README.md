@@ -30,7 +30,8 @@ You can send CPDLC and/or PDC messages to this callsign from your aircraft, when
 
 The bridge polls Hoppie’s network for messages for this callsign, and polls the Sayintentions.AI's ACARS network for messages to the callsign in your latest SimBrief plan. It then forwards these messages onto their respective networks.
 
-<img width="655" alt="image" src="https://github.com/user-attachments/assets/9b99d926-a672-48ce-bb1f-0a9cb27bac53">
+<img width="899" alt="image" src="https://github.com/user-attachments/assets/c358b064-5968-469b-8943-75deffa3690f">
+
 
 ## Do I lose anything by using it?
 
@@ -66,11 +67,26 @@ A configuration file (bridge.ini) is created in the same directory as the progra
 
 <img width="417" alt="image" src="https://github.com/user-attachments/assets/fcd9bcd6-afbf-43c4-92c9-e36eb76dfb55">
 
-## Debugging
+## Debugging (for version v0.2024.11.5 onwards)
 
-It is worth remembering that you need to have setup the aircraft to send messages on Hoppie’s ACARS network:
+It is worth remembering that you need to have setup the aircraft to send messages on Hoppie’s ACARS network, the Bridge will periodically check Hoppie's ACARS network to determine if your aircraft have sucessfully connected.
 
-There are two important links to check 
+<img width="587" alt="image" src="https://github.com/user-attachments/assets/4848bed8-22ca-4844-9cc9-558379510471">
+
+You can also send debug messages to/from the Bridge:
+
+<img width="635" alt="image" src="https://github.com/user-attachments/assets/96e558ad-6eb8-4b5e-ad0a-63c516aab242">
+
+
+To send from the bridge to your aircraft press the key d the following response will be sent as a cpdlc message across Hoppie's network
+
+Send a telex/company message containing the phrase BRIDGE TEST from your aircraft to the Bridge assigned callsign which will reply with a response:
+
+<img width="356" alt="image" src="https://github.com/user-attachments/assets/466d9f35-53fb-480b-8bf8-f477e8fbb836">
+
+
+
+If these tests fail then there are two important links to check 
 
 ### Check Hoppie's ACARS network 
 
