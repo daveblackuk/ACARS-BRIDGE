@@ -6,7 +6,6 @@ The ACARS Bridge enables you to send and receive Pre-departure clearance and CPD
 
 It has been built by Dave Black, to allow more pilots to use the SayIntentions.AI's ACARS network. It is available from 
 
-[https://github.com/daveblackuk/ACARS-BRIDGE/releases/tag/ACARS]()
 
 <img width="585" alt="image" src="https://github.com/user-attachments/assets/78053122-5bd4-4406-b4cc-0320e35ccbe4">
 
