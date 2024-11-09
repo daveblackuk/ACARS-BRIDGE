@@ -85,7 +85,9 @@ Send a telex/company message containing the phrase BRIDGE TEST from your aircraf
 
 
 
-If these tests fail then there are two important links to check 
+If these tests fail then there are two important links to check (press w on bridge to open in separate tabs)
+
+![image](https://github.com/user-attachments/assets/def4f238-a3bd-45ae-a26a-81a48d60d1ca)
 
 ### Check Hoppie's ACARS network 
 
