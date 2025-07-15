@@ -13,7 +13,6 @@ It has been built by Dave Black, to allow more pilots to use the SayIntentions.A
 
 Currently tested with:
 
-* PMDG’s 777 (MSFS)
 * Fly by Wire’s A32NX. (MSFS)
 * Toliss’ A330-900 in (X-Plane 12\)
 
